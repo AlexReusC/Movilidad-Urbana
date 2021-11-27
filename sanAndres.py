@@ -48,11 +48,11 @@ class Car(Agent):
 			self.velocity = (0, 1)
 
 	def turnLeft(self):
-		// TODO: Corregir vueltas a la derecha	
+		# TODO: Corregir vueltas a la derecha	
 		neighbors = self.model.grid.get_neighborhood(self.pos, moore=False)
 		if self.getWeight(neighbors[0]) == 2 and self.getWeight(neighbors[1]) == 2:
 			# arriba hacia izquierda
-			print("derecha hacia abajo")
+			# print("derecha hacia abajo")
 			if self.velocity[0] == 0:
 				self.velocity = (-1, 0)
 			else:
