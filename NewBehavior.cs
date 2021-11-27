@@ -5,13 +5,13 @@ using UnityEngine.Networking;
 
 public class Constants
 {
-        public const int SQUARE_LENGTH = 5;
-        public const float INITIAL_X = 168.6f-SQUARE_LENGTH/2;
+        public const float SQUARE_LENGTH = 4.98f;
+        public const float INITIAL_X = 167;
         public const float INITIAL_Y = -54.69f;
 
-        public const float INITIAL_Z = -120.5f+SQUARE_LENGTH/2;
+        public const float INITIAL_Z = -117;
 
-        public const float WAIT_TIME = 0.05f;
+        public const float WAIT_TIME = 0.1f;
 }
 
 
@@ -57,7 +57,7 @@ class MyCar
     }
 }
 
-public class NewBehavior : MonoBehaviour
+public class NewBehaviourScript : MonoBehaviour
 {
     string simulationURL = null;
     private float timer = 0.0f;
