@@ -11,9 +11,8 @@ public class Constants
 
         public const float INITIAL_Z = -117;
 
-        public const float WAIT_TIME = 0.1f;
+        public const float WAIT_TIME = 1.0f;
 }
-
 
 public static class JsonHelper
 {
@@ -57,15 +56,16 @@ class MyCar
     }
 }
 
-public class NewBehavior : MonoBehaviour
+public class BehaviorCars : MonoBehaviour
 {
+    public GameObject auto;
     string simulationURL = null;
     private float timer = 0.0f;
-
-    // Start is called before the first frame update
+    List<GameObject> carCollection;
     void Start()
     {
-         StartCoroutine(ConnectToMesa());
+        carCollection = new List<GameObject>();
+        StartCoroutine(ConnectToMesa());
     }
 
     IEnumerator ConnectToMesa()
@@ -83,8 +83,14 @@ public class NewBehavior : MonoBehaviour
             else
             {
                 simulationURL = www.GetResponseHeader("Location");
+                string data = www.GetResponseHeader("Items"); 
+                int numItems;
+                int.TryParse(data, out numItems);
                 Debug.Log("Connected to simulation through Web API");
-                Debug.Log(simulationURL);
+                Debug.Log(numItems);
+                for(int i = 0; i < numItems; i++){
+                    carCollection.Add(Instantiate(auto, new Vector3(0,0,0), Quaternion.identity));
+                }
             }
         }
     }
@@ -100,19 +106,21 @@ public class NewBehavior : MonoBehaviour
 
                 Debug.Log(www.downloadHandler.text);
                 Debug.Log("Data has been processed");
-                MyCar cars = JsonUtility.FromJson<MyCar>(www.downloadHandler.text);
-                Debug.Log(cars.ToString());
+                MyCar[] cars = JsonHelper.FromJson<MyCar>(www.downloadHandler.text);
 
-                float y = Constants.INITIAL_Y;
-                float x = Constants.INITIAL_X + cars.x * Constants.SQUARE_LENGTH;
-                float z = Constants.INITIAL_Z + cars.y * Constants.SQUARE_LENGTH;
-                transform.position = new Vector3(x, y, z);
-                transform.Rotate(new Vector3(0, cars.theta, 0));
+                for(int i = 0; i < cars.Length; i++){
+                    GameObject tmp = carCollection[i];
+                    float y = Constants.INITIAL_Y;
+                    float x = Constants.INITIAL_X + cars[i].x * Constants.SQUARE_LENGTH;
+                    float z = Constants.INITIAL_Z + cars[i].y * Constants.SQUARE_LENGTH;
+                    tmp.transform.position = new Vector3(x, y, z);
+                    tmp.transform.Rotate(new Vector3(0, cars[i].theta, 0));
+                }
             }
         }
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         timer += Time.deltaTime;

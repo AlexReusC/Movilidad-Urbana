@@ -120,10 +120,13 @@ class City(Model):
 		self.loadMatrix()
 		self.schedule = RandomActivation(self)
 		self.grid = MultiGrid(60, 57, torus=False)
-		car = Car(self, (10,1))
+		car = Car(self, (23, 33))
+		car1 = Car(self,(24, 34))
 		# car = Car(self, (10,1))
 		self.grid.place_agent(car, car.pos)
 		self.schedule.add(car)
+		self.grid.place_agent(car1, car.pos)
+		self.schedule.add(car1)
 
       
 	def step(self):
