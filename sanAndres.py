@@ -110,7 +110,7 @@ class City(Model):
 		self.initCars()
 
 	def initCars(self):
-		for pos in [(23,33), (10, 1)]:
+		for pos in [(23,33), (22,33), (21, 33), (10, 1), (11, 1), (15,1)]:
 			car = Car(self, pos)
 			self.grid.place_agent(car, car.pos)
 			self.schedule.add(car)
