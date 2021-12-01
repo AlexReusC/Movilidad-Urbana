@@ -110,20 +110,11 @@ class City(Model):
 		self.initCars()
 
 	def initCars(self):
-		car = Car(self, (23,33))
-		car1 = Car(self, (23, 34))
-		car2 = Car(self,(10, 2))
-		car3 = Car(self, (10,1))
-
-		self.placeCar(car)
-		self.placeCar(car1)
-		self.placeCar(car2)
-		self.placeCar(car3)
+		for pos in [(23,33), (22,33), (21, 33), (10, 2), (10, 1)]:
+			car = Car(self, pos)
+			self.grid.place_agent(car, car.pos)
+			self.schedule.add(car)
 		
-	def placeCar(self, car):
-		
-		self.grid.place_agent(car, car.pos)
-		self.schedule.add(car)
       
 	def step(self):
 		self.schedule.step()

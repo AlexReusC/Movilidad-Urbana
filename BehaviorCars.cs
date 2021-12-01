@@ -58,13 +58,17 @@ class MyCar
 
 public class BehaviorCars : MonoBehaviour
 {
-    public GameObject auto;
+    public GameObject auto1;
+    public GameObject auto2;
+    public GameObject auto3;
     string simulationURL = null;
     private float timer = 0.0f;
     List<GameObject> carCollection;
+    List<GameObject> carToChoose;
     void Start()
     {
         carCollection = new List<GameObject>();
+        carToChoose = new List<GameObject>{auto1, auto2, auto3};
         StartCoroutine(ConnectToMesa());
     }
 
@@ -89,7 +93,7 @@ public class BehaviorCars : MonoBehaviour
                 Debug.Log("Connected to simulation through Web API");
                 Debug.Log(numItems);
                 for(int i = 0; i < numItems; i++){
-                    carCollection.Add(Instantiate(auto, new Vector3(0,0,0), Quaternion.identity));
+                    carCollection.Add(Instantiate(carToChoose[Random.Range(0, carToChoose.Count)], new Vector3(0,0,0), Quaternion.Euler(0,90,0)));
                 }
             }
         }
@@ -107,6 +111,7 @@ public class BehaviorCars : MonoBehaviour
                 Debug.Log(www.downloadHandler.text);
                 Debug.Log("Data has been processed");
                 MyCar[] cars = JsonHelper.FromJson<MyCar>(www.downloadHandler.text);
+                
 
                 for(int i = 0; i < cars.Length; i++){
                     GameObject tmp = carCollection[i];
