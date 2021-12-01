@@ -13,7 +13,7 @@ class Car(Agent):
 		self.angle = 0
 		
 	def step(self):
-		print(self.model.matrix[self.pos[1]][self.pos[0]])
+		# print(self.model.matrix[self.pos[1]][self.pos[0]])
 		self.getAngle()
 		# print(self.model.grid.get_neighborhood(self.pos, moore=False))
 		newPos = (self.exactPos[0]+self.velocity[0], self.exactPos[1]+self.velocity[1])
@@ -30,10 +30,17 @@ class Car(Agent):
 		neighbors = self.model.grid.get_neighborhood(self.pos, moore=False)
 		if self.getWeight(neighbors[0]) == 1 and self.getWeight(neighbors[1]) == 1:
 			# derecha hacia abajo
-			self.velocity = (0, -1)
+			if self.velocity[0] == 0:
+				self.velocity = (-1, 0)
+			else:
+				self.velocity = (0, 1)
 		elif self.getWeight(neighbors[0]) == 1 and self.getWeight(neighbors[2]) == 1:
 			# abajo hacia izquierda
-			self.velocity = (-1, 0)
+			
+			if self.velocity[0] == 0:
+				self.velocity = (-1, 0)
+			else:
+				self.velocity = (0, 1)
 		elif self.getWeight(neighbors[3]) == 1 and self.getWeight(neighbors[1]) == 1:
 			# arriba hacia derecha
 
@@ -43,13 +50,17 @@ class Car(Agent):
 				self.velocity = (0, 1)
 		elif self.getWeight(neighbors[3]) == 1 and self.getWeight(neighbors[2]) == 1:
 			# izquierda a arriba
-			self.velocity = (0, 1)
+			if self.velocity[0] == 0:
+				self.velocity = (1, 0)
+			else:
+				self.velocity = (0, 1)
 
 	def turnLeft(self):
 		# se revisan los vecinos y de acuerdo a la forma de la vuelta se cambia la velocidad
-		# TODO: Corregir vueltas a la derecha	
+		# TODO: Corregir vueltas a la derecha
+
 		neighbors = self.model.grid.get_neighborhood(self.pos, moore=False)
-		if self.getWeight(neighbors[0]) == 2 and self.getWeight(neighbors[1]) == 2:
+		if (self.getWeight(neighbors[0]) == 2 and self.getWeight(neighbors[1]) == 2) or (self.getWeight(neighbors[0]) == 1 and self.getWeight(neighbors[1]) == 1):
 			# arriba hacia izquierda
 			if self.velocity[0] == 0:
 				self.velocity = (-1, 0)
@@ -78,37 +89,29 @@ class Car(Agent):
 
 	def getAngle(self):
 		self.angle = 0
-		# sólo se cambia el ángulo si no se ha pasado antes por dicha posición
-		if self.pos != self.lastTurn:
-			# vueltas
-			if int(self.model.matrix[self.pos[1]][self.pos[0]]) == 3:
-
-				# chequeo de carril
+		# sólo se cambia el ángulo si no se ha pasado antes por dicha posición	
+		if int(self.model.matrix[self.pos[1]][self.pos[0]]) == 3:
+			# chequeo de carril
+			if self.getWeight(self.lastTurn) == 1:
+				self.turnRight()
+			else:
+				self.turnLeft()
+			self.lastTurn = self.pos
+			#giro
+			self.angle = 90
+		# checar semaforo
+		elif int(self.model.matrix[self.pos[1]][self.pos[0]]) == 4:
+			
+			if random()*100 > 50:
+				self.lastTurn = self.pos
 				if self.getWeight(self.pos) == 1:
 					self.turnRight()
 				else:
 					self.turnLeft()
-
-				self.lastTurn = self.pos
-
-				#giro
 				self.angle = 90
-			# vueltas con dos destinos posibles
-			elif int(self.model.matrix[self.pos[1]][self.pos[0]]) == 4:
-				
-				
-				
-				
-				if random()*100 > 50:
 
-					self.lastTurn = self.pos
 
-					if self.getWeight(self.pos) == 1:
-						self.turnRight()
-					else:
-						self.turnLeft()
-
-					self.angle = 90
+		self.lastTurn = self.pos
 
 
 
@@ -120,7 +123,7 @@ class City(Model):
 		self.loadMatrix()
 		self.schedule = RandomActivation(self)
 		self.grid = MultiGrid(60, 57, torus=False)
-		car = Car(self, (10,1))
+		car = Car(self, (23,33))
 		# car = Car(self, (10,1))
 		self.grid.place_agent(car, car.pos)
 		self.schedule.add(car)
