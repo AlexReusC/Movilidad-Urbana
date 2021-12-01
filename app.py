@@ -3,6 +3,7 @@ from flask.json import jsonify
 import uuid
 import os
 from sanAndres import City
+from car import Car
 
 games = {}
 
@@ -13,7 +14,7 @@ def create():
     global games
     id = str(uuid.uuid4())
     games[id] = City()
-    return "ok", 201, {'Location': f"/games/{id}", "Items": len(games[id].schedule.agents)}
+    return "ok", 201, {'Location': f"/games/{id}", "Items": len(games[id].schedule.agents) - 1}
 
 @app.route("/games/<id>", methods=["GET"])
 def queryState(id):
@@ -22,7 +23,8 @@ def queryState(id):
     model.step()
     cars = []
     for car in model.schedule.agents:
-        cars.append({"x": car.exactPos[0], "y": car.exactPos[1], "theta": car.angle})
+        if isinstance(car, Car):
+            cars.append({"x": car.exactPos[0], "y": car.exactPos[1], "theta": car.angle})
     return jsonify({"Items": cars})
 app.run()
 
