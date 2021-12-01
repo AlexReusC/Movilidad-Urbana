@@ -11,6 +11,8 @@ class Car(Agent):
 		self.exactPos = pos
 		self.velocity = (1, 0)
 		self.angle = 0
+		self.flag = False
+		self.direction = False
 		
 	def step(self):
 		# print(self.model.matrix[self.pos[1]][self.pos[0]])
@@ -25,61 +27,32 @@ class Car(Agent):
 	def getWeight(self, pos):
 		return int(self.model.matrix[pos[1]][pos[0]])
 
-	def turnRight(self):
-		# se revisan los vecinos y de acuerdo a la forma de la vuelta se cambia la velocidad
-		neighbors = self.model.grid.get_neighborhood(self.pos, moore=False)
-		if self.getWeight(neighbors[0]) == 1 and self.getWeight(neighbors[1]) == 1:
-			# derecha hacia abajo
-			if self.velocity[0] == 0:
-				self.velocity = (-1, 0)
-			else:
-				self.velocity = (0, 1)
-		elif self.getWeight(neighbors[0]) == 1 and self.getWeight(neighbors[2]) == 1:
-			# abajo hacia izquierda
-			
-			if self.velocity[0] == 0:
-				self.velocity = (-1, 0)
-			else:
-				self.velocity = (0, 1)
-		elif self.getWeight(neighbors[3]) == 1 and self.getWeight(neighbors[1]) == 1:
-			# arriba hacia derecha
 
-			if self.velocity[0] == 0:
-				self.velocity = (1, 0)
-			else:
-				self.velocity = (0, 1)
-		elif self.getWeight(neighbors[3]) == 1 and self.getWeight(neighbors[2]) == 1:
-			# izquierda a arriba
-			if self.velocity[0] == 0:
-				self.velocity = (1, 0)
-			else:
-				self.velocity = (0, 1)
-
-	def turnLeft(self):
+	def turn(self, weight1, weight2):
 		# se revisan los vecinos y de acuerdo a la forma de la vuelta se cambia la velocidad
-		# TODO: Corregir vueltas a la derecha
+
 
 		neighbors = self.model.grid.get_neighborhood(self.pos, moore=False)
-		if (self.getWeight(neighbors[0]) == 2 and self.getWeight(neighbors[1]) == 2) or (self.getWeight(neighbors[0]) == 1 and self.getWeight(neighbors[1]) == 1):
+		if self.getWeight(neighbors[0]) == weight1 and self.getWeight(neighbors[1]) == weight2:
 			# arriba hacia izquierda
 			if self.velocity[0] == 0:
 				self.velocity = (-1, 0)
 			else:
-				self.velocity = (0, 1)
-		elif self.getWeight(neighbors[0]) == 2 and self.getWeight(neighbors[2]) == 2:
+				self.velocity = (0, -1)
+		elif self.getWeight(neighbors[2]) == weight1 and self.getWeight(neighbors[0]) == weight2:
 			# derecha hacia arriba
 			if self.velocity[0] == 0:
 				self.velocity = (-1, 0)
 			else:
 				self.velocity = (0, 1)
-		elif self.getWeight(neighbors[3]) == 2 and self.getWeight(neighbors[1]) == 2:
+		elif self.getWeight(neighbors[1]) == weight1 and self.getWeight(neighbors[3]) == weight2:
 			# izquierda hacia abajo
 			if self.velocity[0] == 0:
 				self.velocity = (1, 0)
 			else:
 				self.velocity = (0, -1)
 			
-		elif self.getWeight(neighbors[3]) == 2 and self.getWeight(neighbors[2]) == 2:
+		elif self.getWeight(neighbors[3]) == weight1 and self.getWeight(neighbors[2]) == weight2:
 			# abajo hacia derecha
 			if self.velocity[0] == 0:
 				
@@ -90,25 +63,35 @@ class Car(Agent):
 	def getAngle(self):
 		self.angle = 0
 		# sólo se cambia el ángulo si no se ha pasado antes por dicha posición	
-		if int(self.model.matrix[self.pos[1]][self.pos[0]]) == 3:
+		if self.getWeight(self.pos) == 3:
 			# chequeo de carril
 			if self.getWeight(self.lastTurn) == 1:
-				self.turnRight()
+				# print("derecha")
+				self.turn(1, 1)
 			else:
-				self.turnLeft()
+				# print("izquierda")
+				self.turn(2, 2)
 			self.lastTurn = self.pos
 			#giro
 			self.angle = 90
-		# checar semaforo
-		elif int(self.model.matrix[self.pos[1]][self.pos[0]]) == 4:
-			
+		# TODO: checar semaforo
+		elif self.getWeight(self.pos) == 4:
+			# print("rotonda")
 			if random()*100 > 50:
-				self.lastTurn = self.pos
-				if self.getWeight(self.pos) == 1:
-					self.turnRight()
+				# print("vuelta")
+				if self.getWeight(self.lastTurn) == 1:
+					self.direction = True
 				else:
-					self.turnLeft()
-				self.angle = 90
+					self.direction = False
+				self.flag = True
+		elif self.getWeight(self.pos) == 5:
+			# print("continua")
+			if self.direction:
+				self.turn(4, 1)
+			else:
+				self.turn(4, 2)
+			self.angle = 90
+			self.flag = False
 
 
 		self.lastTurn = self.pos
@@ -123,15 +106,24 @@ class City(Model):
 		self.loadMatrix()
 		self.schedule = RandomActivation(self)
 		self.grid = MultiGrid(60, 57, torus=False)
+		
+		self.initCars()
+
+	def initCars(self):
 		car = Car(self, (23,33))
-		# car = Car(self, (23, 33))
-		# car1 = Car(self,(24, 34))
-		# car = Car(self, (10,1))
+		car1 = Car(self, (23, 34))
+		car2 = Car(self,(10, 2))
+		car3 = Car(self, (10,1))
+
+		self.placeCar(car)
+		self.placeCar(car1)
+		self.placeCar(car2)
+		self.placeCar(car3)
+		
+	def placeCar(self, car):
+		
 		self.grid.place_agent(car, car.pos)
 		self.schedule.add(car)
-		self.grid.place_agent(car1, car.pos)
-		self.schedule.add(car1)
-
       
 	def step(self):
 		self.schedule.step()

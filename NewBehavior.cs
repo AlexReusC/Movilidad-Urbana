@@ -11,7 +11,7 @@ public class Constants
 
         public const float INITIAL_Z = -117;
 
-        public const float WAIT_TIME = 0.1f;
+        public const float WAIT_TIME = 1f;
 }
 
 
