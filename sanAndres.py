@@ -17,8 +17,30 @@ class City(Model):
 		self.initTrafficLights()
 
 	def initCars(self):
-		for pos in [(23,33), (20,33), (10, 1), (15, 1), (20,1)]*20:
-			car = Car(self, pos)
+		cars = [
+			(16,33),
+			(20,33),
+			(24,33), 
+			(2, 1),
+			(6, 1),
+			(10, 1), 
+			(14,1), 
+			(18, 1), 
+			(22, 1), 
+			(26,1),  
+			(30, 1), 
+			(20, 12),
+			(24, 12),
+			(28, 12),
+			(32, 12),
+			(36, 12),
+			(40, 54),
+			(44, 54),
+			(48, 54),
+			(52, 54)
+			]
+		for pos in cars:
+			car = Car(self, pos, (1, 0))
 			self.grid.place_agent(car, car.pos)
 			self.schedule.add(car)
 

@@ -9,11 +9,11 @@ class TrafficLight(Agent):
       # False: Rojo
       self.pos = pos
       self.state = TrafficLight.GREEN
-      self.clock = 15
+      self.clock = 35
     
     def step(self):
       self.clock -= 1
 
       if self.clock == 0:
-        self.clock = 15
+        self.clock = 35
         self.state = not self.state
